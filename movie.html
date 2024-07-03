@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>MyFlix</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+        <!-- Bootstrap CSS v5.2.1 -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous" />
+    </head>
+
+    <body>
+        <!-- Navbar -->
+        <nav id="navbar" class="navbar navbar-expand-lg navbar-light ">
+            <div class="container-fluid">
+                <a id="a" class="navbar-brand " href="#">MyFlix</a>
+                <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse"
+                    id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a id="b" class="nav-link active "
+                                aria-current="page" href="#">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="c" class="nav-link" href="#">Link</a>
+                        </li>
+                    </ul>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox"
+                            id="flexSwitchCheckDefault"
+                            onchange="modeHandler()">
+                        <label id="modetext" class="form-check-label"
+                            for="flexSwitchCheckDefault"></label>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container my-5">
+            <div class="d-flex justify-content-center">
+                <div id="loader" class="spinner-border text-primary"
+                    role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <div id="row" class="row">
+
+            </div>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-primary"
+                    onclick="previous()">Previous</button>
+                <p id="page"></p>
+                <button class="btn btn-primary" onclick="next()">Next</button>
+            </div>
+        </div>
+
+        <!-- (Optional) - Place this js code after initializing bootstrap.min.js or bootstrap.bundle.min.js -->
+        <script>
+            var triggerEl = document.querySelector("#navId a");
+            bootstrap.Tab.getInstance(triggerEl).show(); // Select tab by name
+        </script>
+
+        <!-- Bootstrap JavaScript Libraries -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+            integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+            crossorigin="anonymous"></script>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+            integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+            crossorigin="anonymous"></script>
+
+        <script>
+            let dummydata = [];
+            let path = "https://image.tmdb.org/t/p/w500";
+            let page = 1;
+            let mode = false;
+            document.getElementById('loader').style.display= "none";
+            function next(){
+                document.getElementById('loader').style.display= "block";
+                document.getElementById('row').style.display= "none";
+                setTimeout(()=>{
+                    page = page + 1;
+                    getAllMovies(); 
+                    document.getElementById('loader').style.display= "none";
+                    document.getElementById('row').style.display= "";
+                },2000)
+                 
+            }
+
+            function previous(){
+                page = page - 1;
+                getAllMovies();
+            }
+
+            async function getAllMovies(){
+                let str = "";
+                let res =  await fetch(`https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=04c35731a5ee918f014970082a0088b1&page=${page}`);
+                res = await res.json();
+                console.log(res.results);
+                dummydata = res.results;
+                res.results.forEach(function(data , index){
+                    str = str + `
+                    <div class=" my-2 col-12 col-sm-6 col-md-4 col-lg-3">
+                        <div id="card" class="card p-2">
+                            
+                            <img style="height : 100%" src="${'https://image.tmdb.org/t/p/w500'}${data.poster_path}">
+                            
+                            <h4>${data.title}</h4>
+                            <p>${data.overview.slice(0,44)} ...</p>
+                        </div>
+                    </div>`;
+                })
+                document.querySelector('.row').innerHTML = str;
+                document.getElementById("page").innerHTML = "Page # " + page;
+
+                if(mode == true){
+                  dummydata.forEach(function(data , index){
+                    document.getElementsByClassName('card')[index].style.backgroundColor = "#161722";
+                    document.getElementsByClassName('card')[index].style.color = "#ffff";
+                  })
+                }
+              }
+            
+
+            
+
+            document.getElementById("modetext").innerHTML = "Enable Dark Mode";
+            function modeHandler(){
+                if(mode == false){
+                    mode = true;
+                    document.getElementById("modetext").innerHTML = "Enable Light Mode";
+                    document.body.style.backgroundColor = "#161722";
+                    document.getElementById('page').style.color = "#ffff";
+                    document.getElementById('navbar').style.color = "#161722";
+                    document.getElementById('a').style.color = "#ffff";
+                    document.getElementById('b').style.color = "#ffff";
+                    document.getElementById('c').style.color = "#ffff";
+                    document.getElementById('modetext').style.color = "#ffff";
+
+                    dummydata.forEach(function(data , index){
+                            document.getElementsByClassName('card')[index].style.backgroundColor = "#161722"
+                            document.getElementsByClassName('card')[index].style.color= "#ffff"
+                    })
+                    
+                    console.log("Dummydata" , dummydata);
+                }
+                else{
+                    document.getElementById("modetext").innerHTML = "Enable Dark Mode";
+                    mode = false;
+                    document.body.style.backgroundColor = "";
+                    document.getElementById('page').style.color = "";
+                    document.getElementById('navbar').style.color = "";
+                    document.getElementById('a').style.color = "";
+                    document.getElementById('b').style.color = "";
+                    document.getElementById('c').style.color = "";
+                    document.getElementById('modetext').style.color = "";
+                    dummydata.forEach(function(data , index){
+                        document.getElementsByClassName('card')[index].style.backgroundColor = ""
+                        document.getElementsByClassName('card')[index].style.color= ""
+                })
+
+                }
+
+            }
+
+            getAllMovies();
+
+        </script>
+    </body>
+</html>
